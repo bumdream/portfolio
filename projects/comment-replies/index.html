@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/28e8d7af1365f61e.css" data-precedence="next"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/028b338515cb152f.css" data-precedence="next"/>
+  <link rel="icon" href="/portfolio/favicon.ico" type="image/x-icon" sizes="16x16"/>
+</head>
+<body class="__variable_6d341e __variable_6d341e antialiased">
+<header class="sticky top-0 z-50 backdrop-blur bg-background/70 border-b border-foreground/10"><div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between"><a class="text-sm font-semibold tracking-tight" href="/portfolio/">한승범</a><nav class="flex items-center gap-3"><a href="https://www.linkedin.com/in/%EC%8A%B9%EB%B2%94-%ED%95%9C-54984b168" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4V24h-4V8zm7 0h3.8v2.2h.06c.53-1 1.83-2.2 3.76-2.2 4.02 0 4.76 2.64 4.76 6.07V24h-4v-7.1c0-1.69-.03-3.86-2.35-3.86-2.35 0-2.71 1.83-2.71 3.73V24h-4V8z"></path></svg>LinkedIn</a><a href="mailto:beoms6000@gmail.com" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 13.065 1.5 6h21L12 13.065zM12 15 1.5 8v10h21V8L12 15z"></path></svg>Email</a></nav></div></header>
+<div class="max-w-5xl mx-auto px-6 py-10 space-y-8">
+  <header class="space-y-3">
+    <h1 class="text-2xl sm:text-4xl font-bold tracking-tight">댓글개선 &gt; 답글 기능 과제</h1>
+  </header>
+  <article class="markdown-body max-w-[68ch] mx-auto text-foreground/90"><p><img src="/portfolio/projects/comment-replies/cover.png" alt="이미지"></p>
+<p>웹툰 댓글엔 답글 기능이 없었습니다.
+유저들의 요청이 이어지면서 <strong>답글기능</strong> 과제가 추가되었습니다.
+처음엔 API 응답만 새 화면에 표시하면 될 줄 알았지만, 검토할게 많았습니다.</p>
+<h2>이슈</h2>
+<ul>
+<li><strong>더보기방식</strong>에서 <strong>placeholder방식</strong>으로 UX가 바뀌었습니다.
+<ul>
+<li>placeholder를 유지하면서 불러온 페이지만 부분 갱신하는 구현이 까다로웠습니다.
+<ul>
+<li>예를들어 D페이지에 특정답글이 포함된 A, B, C, D(답글), E, F 로 포커싱되면, 나머지는 placeholder로 유지되고, 사용자가 A까지 올라갈때 네트워크가 느려 나머지 B,C,D 요청에 실패했다면, A와 D만 불러온채 나머지는 placeholder가 되어야 합니다.</li>
+<li>이후 다시 placeholder로 스크롤 하면 재요청 되어야 합니다.</li>
+</ul>
+</li>
+<li>내가 쓴 답글로 포커싱하는 스펙이 있었습니다.
+<ul>
+<li>중간부터 불러오더라도 나머지 페이지들은 placeholder로 유지</li>
+<li>이때 원댓글은 최상단에 고정되어야 합니다.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>이 당시 paging2를 사용하고 있었는데 기획 요구 스펙을 만족하면서 구현하기 어려웠습니다.
+<ul>
+<li>저는 가능한 방안이 없을지 샘플앱을 만들어 테스트해보았습니다.
+(PositionalDataSource, ItemKeyedDataSource, PageKeyedDataSource)</li>
+<li>Paging 라이브러리는 마지막 요청한 키 기준으로 이전/다음 페이지가 관리되기 때문에, 중간에 페이지를 건너띄는 것이 어려웠습니다.</li>
+<li>직접 PLACEHOLDER 아이템을 셋팅하고, 페이지 결과를 로드 안된 것처럼 반환하는 등 시도도 해보았으나, 내부적으로 null인 데이터에 대해 트리거되도록 구현되어있어 API 요청이 트리거되지 않거나 스크롤이 초기화 되는 이슈가 있었습니다.</li>
+</ul>
+</li>
+<li>비슷한 스펙인 다른 네이버 계열사팀에 문의해보기도 했으나 대부분 직접 구현했다는 답변을 받았습니다.</li>
+<li>팀내에선 댓글 로직이 관리 된지 오래되었고, 이번 기회에 새로 개발하는 것도 좋겠다 의견을 주셨습니다.</li>
+</ul>
+<p>결국, <strong>페이징 라이브러리를 새로 설계</strong>하게 되었습니다.
+제가 특히 신경썼던 부분은 이렇습니다.</p>
+<ul>
+<li>스크롤 이벤트로부터 필요한 페이지를 어떻게 요청할까?</li>
+<li>빠른 스크롤 시, 연속적으로 들어오는 페이징 요청에 대한 관리는 어떻게 할까?</li>
+<li>요청 전략은 어떻게 할까? 나중에 들어온 페이지 요청이 올 경우 이전 요청은 어떻게 할까?</li>
+<li>기존 페이징 라이브러리만큼 충분한 성능이 나오는가? 어떻게 입증할까?</li>
+<li>구현이 필요한 댓글 화면만 4개 정도 되는데, 각기 UI구성이 미묘하게 다르다, 쉽게 확장해서 쓸 수 있는가?
+<ul>
+<li>답글은 원댓글 + 페이징</li>
+<li>전체댓글은 페이징</li>
+<li>컷댓글은 베스트댓글5개 + 페이징</li>
+<li>...</li>
+</ul>
+</li>
+</ul>
+<h2>구조도</h2>
+<p><em>(구체적인 로직은 공유드리지 못하는 점 양해 부탁드립니다.)</em></p>
+<p><img src="/portfolio/projects/comment-replies/cover.png" alt="구조도"></p>
+<ul>
+<li>두가지 인터페이스를 정의하였습니다.
+<ul>
+<li><strong>CommentProcessor</strong>에서 각 화면별 댓글아이템을 어떻게 처리할지 <strong>정의</strong>
+<ul>
+<li>가령 댓글을 삭제시, 현재 아이템을 삭제하라는 PageEvent로 변경</li>
+<li>PageEventProcessor는 이벤트를 통해 PagingAdapter를 갱신하며 UI에 반영</li>
+</ul>
+</li>
+<li><strong>CommentPagingDataLoader</strong>에서 각 화면별 아이템을 <strong>어떻게 불러올지 정의</strong>
+<ul>
+<li>PagingSource 같은 개념입니다.</li>
+<li>웹툰 화면별로 구성이 달라서 로드 전략을 결정할 수 있도록 하였습니다.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>새로운 댓글 화면이 추가된다면 위 두 인터페이스만 구현해주면 쉽게 확장할 수 있도록 설계하였습니다.</li>
+<li>아이템 로드는 PageScrollListener를 통해 요청됩니다.
+<ul>
+<li>totalCount를 가지고 pageSize만큼 아이템이 생성되며, 노출되는 아이템이 로드전이라면 DataLoader를 통해 데이터를 불러옵니다.</li>
+<li>PagingLoadManager에선 연속되는 요청에 대해 우선순위를 결정하여 요청합니다.</li>
+</ul>
+</li>
+</ul>
+<h2>성능측정</h2>
+<ul>
+<li>안정성 테스트
+<ul>
+<li>10만개의 데이터를 보여주는데도 끄떡 없는가?</li>
+<li>페이징 사이즈 1로 하고 패스트 스크롤 해도 이슈 없는가</li>
+<li>페이징 사이즈를 100으로 하고 패스트 스크롤 해도 이슈 없는가</li>
+</ul>
+</li>
+<li>jank가 발생하는 곳은 없는가?</li>
+<li>메모리 릭은 발생하지 않는가?</li>
+<li>프로파일러 dump시 특히 느려지는 구간은 없었는가?
+<ul>
+<li>IO에서 돌아야 할 작업이 Main에서 돌고 있지는 않은가?</li>
+</ul>
+</li>
+<li>이미 요청이 완료된 페이징을 중복 요청하는 일은 없는가?</li>
+</ul>
+<h2>총평</h2>
+<ul>
+<li>페이징 라이브러리를 설계하고 만드는 것은 복잡하면서도 좋은 경험이었습니다.</li>
+<li>하지만 일년도 지나지 않아 페이징3가 나오고, 댓글 스펙도 대규모 바뀌면서 커스텀페이징 모듈은 과감하게 제거되었습니다.</li>
+<li>지속적으로 유지보수 할 수 없다면, f/o 시키는게 이후 프로젝트 관리 관점에서도 좋다 생각합니다.</li>
+</ul>
+<p>댓글을 페이징3로 전환한 작업은 <a href="https://bumbums.imweb.me/18/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&#x26;bmode=view&#x26;idx=148691965&#x26;t=board">이곳</a>에서 보실 수 있습니다 :)</p></article>
+</div>
+</body>
+</html>

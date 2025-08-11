@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/28e8d7af1365f61e.css" data-precedence="next"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/028b338515cb152f.css" data-precedence="next"/>
+  <link rel="icon" href="/portfolio/favicon.ico" type="image/x-icon" sizes="16x16"/>
+</head>
+<body class="__variable_6d341e __variable_6d341e antialiased">
+<header class="sticky top-0 z-50 backdrop-blur bg-background/70 border-b border-foreground/10"><div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between"><a class="text-sm font-semibold tracking-tight" href="/portfolio/">한승범</a><nav class="flex items-center gap-3"><a href="https://www.linkedin.com/in/%EC%8A%B9%EB%B2%94-%ED%95%9C-54984b168" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4V24h-4V8zm7 0h3.8v2.2h.06c.53-1 1.83-2.2 3.76-2.2 4.02 0 4.76 2.64 4.76 6.07V24h-4v-7.1c0-1.69-.03-3.86-2.35-3.86-2.35 0-2.71 1.83-2.71 3.73V24h-4V8z"></path></svg>LinkedIn</a><a href="mailto:beoms6000@gmail.com" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 13.065 1.5 6h21L12 13.065zM12 15 1.5 8v10h21V8L12 15z"></path></svg>Email</a></nav></div></header>
+<div class="max-w-5xl mx-auto px-6 py-10 space-y-8">
+  <header class="space-y-3">
+    <h1 class="text-2xl sm:text-4xl font-bold tracking-tight">얼굴인식 sdk 성능 분석</h1>
+  </header>
+  <article class="markdown-body max-w-[68ch] mx-auto text-foreground/90"><p><img src="/portfolio/projects/face-sdk-analysis/cover.png" alt="이미지"></p>
+<ul>
+<li>웹툰에 '마주쳤다' 라는 웹툰이 한 때 인기를 끌었는데 들어보셨을지 모르겠습니다.</li>
+<li>웹툰내에선 얼굴인식을 해서 얼굴을 웹툰화 해주는 씬이 있습니다.</li>
+<li>sdk 라이센스 비용이 증가하면서, 후보 sdk와의 성능을 비교하는 과제를 맡게 되었습니다.</li>
+</ul>
+<h2>문제 접근</h2>
+<ul>
+<li>첫 과제라 긴장도 되고, 성능을 비교하려면 무엇부터 해야할지 고민이 되었습니다.</li>
+<li>sdk 부분만 바꿔 테스트를 해보았는데, 그것만으로 정확히 어떤게 더 좋다 가늠하기 어려웠습니다.</li>
+<li>자세한 내부 로직은 업무 내용이라 말씀드릴 순 없지만,
+<ul>
+<li>핵심은 <strong>캡처된 얼굴의 눈/코/입 등 주요 부분을 crop한 결과</strong>를 서버에 보낸다는 것입니다.</li>
+<li>결국 얼마나 <strong>눈/코/입을 정확히 crop</strong> 하냐가 sdk의 성능을 가늠할 수 있는 주요한 포인트였습니다.</li>
+</ul>
+</li>
+</ul>
+<p>다만 문제는,</p>
+<ul>
+<li>코드가 sin, cos, tan 등 수학적인 용어들이 가득하여 정확히 어떻게 crop을 하는지를 보기가 어려웠습니다.</li>
+<li>디버깅을 해가며, 반환된 bitmap이 올바르게 나왔는지를 볼 순 있었으나 직접 비교하는데 한계가 있었습니다.</li>
+</ul>
+<p>첫 과제인데 기대를 저버릴 순 없습니다!<br>
+여러가지 다양한 테스트를 해보았고, 가장 비교가 쉽도록 샘플 앱을 만들게 되었습니다.</p>
+<p><strong>결론적으론, 샘플앱 제작이 sdk 성능을 파악하는데 큰 도움이 되었습니다.</strong></p>
+<p><img src="/portfolio/projects/face-sdk-analysis/sample.png" alt="샘플앱"></p>
+<ul>
+<li>sdk에서 추출한 스켈레톤을 카메라 위에 그렸고, crop된 영역을 바로 실시간으로 볼 수 있게 하였습니다.
+<ul>
+<li>이전 <a href="https://bumbums.imweb.me/18/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&#x26;bmode=view&#x26;idx=148220091&#x26;t=board">대학교 종설 때 해본 과제</a>를 여기서 활용할 기회가 있어서 신기했습니다.</li>
+</ul>
+</li>
+<li>로직으로 구한 bitmap도 바로 출력할 수 있게 하고, 버튼만 누르면 sdk가 교체되도록 하였습니다.</li>
+<li>샘플앱이 있으니 어떤 sdk가 성능이 좋은지 직관적으로 알 수 있었고, 더불어 기존 crop 로직에 이슈가 있는 것도 발견하여 개선하였습니다.</li>
+</ul>
+<p>큰 작업은 아니었지만, 데모앱으로 팀내 의사결정에 대한 시간을 세이브할 수 있어서 뿌듯했습니다.</p></article>
+</div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/28e8d7af1365f61e.css" data-precedence="next"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/028b338515cb152f.css" data-precedence="next"/>
+  <link rel="icon" href="/portfolio/favicon.ico" type="image/x-icon" sizes="16x16"/>
+</head>
+<body class="__variable_6d341e __variable_6d341e antialiased">
+<header class="sticky top-0 z-50 backdrop-blur bg-background/70 border-b border-foreground/10"><div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between"><a class="text-sm font-semibold tracking-tight" href="/portfolio/">한승범</a><nav class="flex items-center gap-3"><a href="https://www.linkedin.com/in/%EC%8A%B9%EB%B2%94-%ED%95%9C-54984b168" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4V24h-4V8zm7 0h3.8v2.2h.06c.53-1 1.83-2.2 3.76-2.2 4.02 0 4.76 2.64 4.76 6.07V24h-4v-7.1c0-1.69-.03-3.86-2.35-3.86-2.35 0-2.71 1.83-2.71 3.73V24h-4V8z"></path></svg>LinkedIn</a><a href="mailto:beoms6000@gmail.com" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 13.065 1.5 6h21L12 13.065zM12 15 1.5 8v10h21V8L12 15z"></path></svg>Email</a></nav></div></header>
+<div class="max-w-5xl mx-auto px-6 py-10 space-y-8">
+  <header class="space-y-3">
+    <h1 class="text-2xl sm:text-4xl font-bold tracking-tight">로그 어노테이션 기반 전송 구조</h1>
+  </header>
+  <article class="markdown-body max-w-[68ch] mx-auto text-foreground/90"><p>여러 도메인으로 나뉜 로그 전송을 <strong>어노테이션 기반 모델</strong>로 통합해, 반복 정의 없이 전송하는 구조를 설계/구현했습니다.</p>
+<h2>이슈</h2>
+<ul>
+<li>이 당시 웹툰에서는 사용자 로그를 전달해야 하는 경우가 많았습니다.</li>
+<li>A로그, B로그, C로그 등 서로 다른 도메인 주소로 전송해야 해서, 매번 Service/ApiModel을 새로 만드는 게 불편했습니다.</li>
+</ul>
+<h2>개선포인트</h2>
+<ul>
+<li>로그로 보내는 값들은 대부분 비슷합니다(method, url, header, query, body).</li>
+<li>그래서 이 값들을 <strong>어노테이션 기반 로그 모델</strong>로 선언하면, 불필요한 반복 정의 없이 바로 전송할 수 있다고 보았습니다.</li>
+<li>모델에 전송 정보를 어노테이션으로 선언하고, Logger가 파싱해 전송용 LogData로 변환합니다.</li>
+</ul>
+<pre><code class="language-kotlin">@Post
+@Url("logServiceUrl")
+data class ExampleLogModel(
+    @Header val header: ExampleHeader,
+    @Body val body: ExampleBody,
+    @Query("exampleQuery") val query: String
+)
+
+Logger.send(logModel)
+</code></pre>
+<p><img src="/portfolio/projects/logging-annotation/cover.png" alt="구조"></p>
+<h2>설계 원칙</h2>
+<ul>
+<li>위에는 설계한 구조입니다.</li>
+<li>나중에 다른 팀에서 사용할 수 있을 것까지 고려하여 logger라는 모듈로 분리를 하여 개발하였습니다.</li>
+<li>logger 모듈 설계에서 중요하게 고려한 사항입니다.
+<ul>
+<li>logger에서는 단지 요청 온 모델을 파싱하고 LogData모델로 반환한다.</li>
+<li>로그를 어떻게 보낼지는 서비스단에 위임한다.</li>
+</ul>
+</li>
+</ul>
+<h2>적용</h2>
+<ul>
+<li>이후 팀 내에서 추가되는 로그들을 쉽게 정의하고 보낼 수 있게 되었습니다.</li>
+<li>다만 Annotation 파싱에서 리플렉션을 사용하면 런타임 검증이 되어 이슈가 될 수 있어, <strong>KSP</strong>를 적용해 컴파일 타임에 검증하도록 바꿨습니다.</li>
+</ul>
+<h2>셀프회고</h2>
+<ul>
+<li>구조에 대한 리뷰 한번 더 해보면 좋을 듯?</li>
+</ul></article>
+</div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/28e8d7af1365f61e.css" data-precedence="next"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/028b338515cb152f.css" data-precedence="next"/>
+  <link rel="icon" href="/portfolio/favicon.ico" type="image/x-icon" sizes="16x16"/>
+</head>
+<body class="__variable_6d341e __variable_6d341e antialiased">
+<header class="sticky top-0 z-50 backdrop-blur bg-background/70 border-b border-foreground/10"><div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between"><a class="text-sm font-semibold tracking-tight" href="/portfolio/">한승범</a><nav class="flex items-center gap-3"><a href="https://www.linkedin.com/in/%EC%8A%B9%EB%B2%94-%ED%95%9C-54984b168" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4V24h-4V8zm7 0h3.8v2.2h.06c.53-1 1.83-2.2 3.76-2.2 4.02 0 4.76 2.64 4.76 6.07V24h-4v-7.1c0-1.69-.03-3.86-2.35-3.86-2.35 0-2.71 1.83-2.71 3.73V24h-4V8z"></path></svg>LinkedIn</a><a href="mailto:beoms6000@gmail.com" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 13.065 1.5 6h21L12 13.065zM12 15 1.5 8v10h21V8L12 15z"></path></svg>Email</a></nav></div></header>
+<div class="max-w-5xl mx-auto px-6 py-10 space-y-8">
+  <header class="space-y-3">
+    <h1 class="text-2xl sm:text-4xl font-bold tracking-tight">회차목록 &gt; 광고보고 무료 기능 추가</h1>
+  </header>
+  <article class="markdown-body max-w-[68ch] mx-auto text-foreground/90"><p>웹툰앱에서 작품을 클릭해 회차목록에 들어가면 상단에 <strong>BM 바</strong>가 있습니다. 이번 과제는 여기에 <strong>광고보고 무료</strong> 기능을 붙이는 일이었습니다.</p>
+<p>기능을 붙이기 전에 항상 그렇듯, 먼저 기존 구조를 살폈습니다. 이쪽도 오랜 기간 기능이 누적되며 의존성이 복잡하게 얽혀 있었습니다.</p>
+<h2>기존 구조의 문제</h2>
+<p><img src="/portfolio/projects/episode-list-ad-free/current.png" alt="기존 구조"></p>
+<ul>
+<li>남은 BM 시간 계산이 세 곳의 ViewModel로 분산되어 있었습니다. 각자 1초 Ticker를 돌려 업데이트하다 보니, 어느 한 곳만 잠시라도 지연되면 싱크가 어긋날 수 있었습니다.</li>
+<li>실제 데이터 소스는 <code>BMUseCase</code> 하나였기 때문에, 시간을 단일 소스로 관리하는 구조가 필요했습니다.</li>
+<li>뷰모델 A, B가 <code>BmView</code>의 UiState를 직접 참조하고 있었습니다. BM 바와 직접 관련 없는 컴포넌트임에도 의존성이 생겨, 화면별 UiState로 분리하는 게 바람직했습니다.</li>
+<li>회차목록에서 <code>BmView</code>를 보여주기 위해 <code>BmUiState</code>와 <code>BmDomainModel</code>을 혼용해 사용하고 있었는데, 표현계층에서는 <code>BmUiState</code>만 바라보고 나머지 의존성은 끊는 방향이 적합했습니다.</li>
+</ul>
+<h2>개선 방향</h2>
+<p><img src="/portfolio/projects/episode-list-ad-free/improved.png" alt="개선된 구조"></p>
+<ul>
+<li>BM 시간 정보는 빨간 영역 하나로 통일해 단일 소스로 관리합니다.
+<ul>
+<li><code>Hilt @ActivityRetainedScoped</code>를 사용해 ViewModel 주기를 화면 흐름과 맞췄습니다. 화면을 나가더라도 잔여 시간 데이터의 수명이 자연스럽게 이어집니다.</li>
+<li>Data layer 캐싱도 고려했지만, 타이틀별 캐시 관리 복잡도 때문에 화면 단위 데이터로 보고 ViewModel까지 유지하는 방향으로 결정했습니다.</li>
+</ul>
+</li>
+<li>시간 갱신은 <code>BM ViewModel</code> 한 곳에서만 수행하고, 다른 뷰모델들은 갱신된 시간을 주입받아 각 화면 전용 UiState로 변환합니다.</li>
+<li><code>BmView</code>는 <code>BmUiState</code>만 바라보도록 하고, Fragment의 도메인 직접 참조는 제거했습니다.</li>
+<li><code>TimeFragmentA/B</code>는 각 화면에 맞는 UiState만 알면 되도록 단순화했습니다.</li>
+</ul>
+<h2>구조를 정리하고 나면 좋은 점</h2>
+<ul>
+<li>구조가 정리되니 기능을 붙이는 일이 단순해졌습니다. 예를 들어 BM View에 새 기능을 추가할 땐 <code>BmUiState</code>만 확장하면 됩니다.</li>
+<li>새로운 화면에서 시간 정보를 보여줘야 할 땐, 시간을 주입받아 해당 화면 전용 UiState로 변환만 해주면 됩니다.</li>
+<li>QA 이슈가 생겨도 수정이 간단합니다. 과거에는 각자 Ticker를 관리해 수정 지점이 여러 곳이었지만, 단일 소스가 되면서 버그 수정 범위가 줄었습니다.</li>
+</ul>
+<h2>회고</h2>
+<p>구조 수정을 하기 전엔 늘 막막하지만, 하고 나면 다행스럽고 뿌듯합니다. 이번에도 중복 Ticker 제거와 책임 분리가 핵심이었고, 유지보수성과 테스트 용이성이 크게 올라갔습니다.</p></article>
+</div>
+</body>
+</html>

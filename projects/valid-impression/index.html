@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/28e8d7af1365f61e.css" data-precedence="next"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/028b338515cb152f.css" data-precedence="next"/>
+  <link rel="icon" href="/portfolio/favicon.ico" type="image/x-icon" sizes="16x16"/>
+</head>
+<body class="__variable_6d341e __variable_6d341e antialiased">
+<header class="sticky top-0 z-50 backdrop-blur bg-background/70 border-b border-foreground/10"><div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between"><a class="text-sm font-semibold tracking-tight" href="/portfolio/">한승범</a><nav class="flex items-center gap-3"><a href="https://www.linkedin.com/in/%EC%8A%B9%EB%B2%94-%ED%95%9C-54984b168" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4V24h-4V8zm7 0h3.8v2.2h.06c.53-1 1.83-2.2 3.76-2.2 4.02 0 4.76 2.64 4.76 6.07V24h-4v-7.1c0-1.69-.03-3.86-2.35-3.86-2.35 0-2.71 1.83-2.71 3.73V24h-4V8z"></path></svg>LinkedIn</a><a href="mailto:beoms6000@gmail.com" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 13.065 1.5 6h21L12 13.065zM12 15 1.5 8v10h21V8L12 15z"></path></svg>Email</a></nav></div></header>
+<div class="max-w-5xl mx-auto px-6 py-10 space-y-8">
+  <header class="space-y-3">
+    <h1 class="text-2xl sm:text-4xl font-bold tracking-tight">유효노출판단 라이브러리 개발</h1>
+  </header>
+  <article class="markdown-body max-w-[68ch] mx-auto text-foreground/90"><p>화면마다 제각각이던 노출/유효노출 로직을 <strong>공통 라이브러리</strong>로 통합했습니다. 단일뷰부터 깊게 중첩된 RecyclerView까지 적은 코드로 추적 가능하게 설계했습니다.</p>
+<h2>이슈</h2>
+<ul>
+<li>이제는 클릭 로그뿐 아니라 노출 로그를 추가하는 경우가 많아졌습니다.</li>
+<li>노출 구현 방식이 개발자마다 제각각이었습니다.
+<ul>
+<li>화면 진입 시점에 바로 “노출”로 간주해 보내는 형태</li>
+<li>스크롤 리스너로 Rect를 계산해 100% 노출 시 보내는 형태</li>
+<li><code>findFirstCompletelyVisibleItemPosition()</code> 기반 판단</li>
+<li>BG→FG 전환마다 재전송하는 경우도 있어, 플래그/set 등 관리 방식도 다양</li>
+</ul>
+</li>
+<li>기획서에는 “1초 이상 100% 노출 시 유효노출” 같은 요구가 등장했고, 매번 구현 공수가 크고 일관성도 떨어져 공통화가 필요했습니다.</li>
+</ul>
+<h2>검토</h2>
+<ul>
+<li>실제 사용성은 크게 두 축이었습니다.
+<ul>
+<li>단일 뷰/커스텀 뷰의 유효노출</li>
+<li>RecyclerView 내부 아이템의 유효노출(중첩 구조 포함)</li>
+</ul>
+</li>
+<li>깊은 RecyclerView의 ViewHolder 유효노출은 기존 방식으로는 구현 복잡도가 높았습니다.</li>
+</ul>
+<h2>설계</h2>
+<p><em>(구체적인 코드는 업무상 공유드릴 수 없는 점 양해부탁드립니다.)</em></p>
+<p><img src="/portfolio/projects/valid-impression/cover.png" alt="설계"></p>
+<h3>내부 동작 요약</h3>
+<ul>
+<li>Detector가 뷰 변화 감지 → Core가 유효노출 판단 → Checker가 캐싱</li>
+<li>유효노출은 Flow로 발행하여 조합과 라이프사이클 관리가 쉬움</li>
+</ul>
+<h2>유효노출 달성에 대한 아이디어</h2>
+<p><img src="/portfolio/projects/valid-impression/idea.png" alt="아이디어"></p>
+<p>유효노출이 달성되었다는 어떻게 판단할지도 여러 방향으로 고민이 많았습니다.
+최종적으론 위처럼 정리하게 되었습니다.</p>
+<ul>
+<li>Checker에서는 뷰가 화면에 들어오거나 나가는 시간을 기록합니다.</li>
+<li>이 정보를 가지고 이후 업데이트 때 어떤 것이 유효노출이 만족 되었는지 알 수 있습니다.</li>
+</ul>
+<h2>사용 예시</h2>
+<pre><code class="language-kotlin">binding.banner
+  .asTracker(ImpressionConfig(ratio = 1f, timeInMiliSeconds = 1000L))
+  .collect { sendLog(...) }
+</code></pre>
+<pre><code class="language-kotlin">class ViewHolder : ImpressionCapturable {
+  override fun capture(): List&#x3C;ImpressionTrackUnit> = this.toTrackUnit(
+    ImpressionConfig(0.5f, 1000L),
+    itemProvider = { getItem() }
+  )
+}
+</code></pre>
+<pre><code class="language-kotlin">recyclerView.asTracker().collect {
+  // RecyclerView내 모든 유효노출 대상이 이곳으로 옵니다.
+}
+</code></pre>
+<ul>
+<li>Tracker는 cold flow이므로 재구독 시 유효노출을 다시 판단합니다.</li>
+<li>BG→FG 재발행은 <code>repeatOnLifecycle(ON_START)</code>로 구현합니다.</li>
+</ul>
+<h2>성능테스트</h2>
+<ul>
+<li>작은 뷰홀더 구성의 샘플앱으로 프로파일링</li>
+<li>Main에서 수행되던 작업을 분리하여 성능 개선</li>
+</ul>
+<h2>총평</h2>
+<ul>
+<li>파편화된 유효노출 로직을 라이브러리로 통합했습니다.</li>
+<li>팀 내 개발 부담을 줄였고, 중첩 RecyclerView에서도 일관된 방식으로 쉽게 적용할 수 있게 되었습니다.</li>
+</ul></article>
+</div>
+</body>
+</html>

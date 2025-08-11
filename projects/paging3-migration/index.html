@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/28e8d7af1365f61e.css" data-precedence="next"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/028b338515cb152f.css" data-precedence="next"/>
+  <link rel="icon" href="/portfolio/favicon.ico" type="image/x-icon" sizes="16x16"/>
+</head>
+<body class="__variable_6d341e __variable_6d341e antialiased">
+<header class="sticky top-0 z-50 backdrop-blur bg-background/70 border-b border-foreground/10"><div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between"><a class="text-sm font-semibold tracking-tight" href="/portfolio/">한승범</a><nav class="flex items-center gap-3"><a href="https://www.linkedin.com/in/%EC%8A%B9%EB%B2%94-%ED%95%9C-54984b168" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4V24h-4V8zm7 0h3.8v2.2h.06c.53-1 1.83-2.2 3.76-2.2 4.02 0 4.76 2.64 4.76 6.07V24h-4v-7.1c0-1.69-.03-3.86-2.35-3.86-2.35 0-2.71 1.83-2.71 3.73V24h-4V8z"></path></svg>LinkedIn</a><a href="mailto:beoms6000@gmail.com" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 13.065 1.5 6h21L12 13.065zM12 15 1.5 8v10h21V8L12 15z"></path></svg>Email</a></nav></div></header>
+<div class="max-w-5xl mx-auto px-6 py-10 space-y-8">
+  <header class="space-y-3">
+    <h1 class="text-2xl sm:text-4xl font-bold tracking-tight">댓글 &gt; 페이징3 대응 및 구조 개선</h1>
+  </header>
+  <article class="markdown-body max-w-[68ch] mx-auto text-foreground/90"><p><img src="/portfolio/projects/paging3-migration/cover.png" alt="검토"></p>
+<h2>배경</h2>
+<ul>
+<li>댓글 서버 API가 대규모 개편되며 파라미터가 <code>page</code> → <strong>key(commentId)</strong> 기반으로 바뀌었습니다.</li>
+<li>당시 웹툰 앱은 페이지 기반으로 동작하는 <strong>커스텀 페이징 라이브러리</strong>를 사용했습니다.</li>
+<li>커스텀 라이브러리를 key 기반으로 확장할 수도 있었지만, 장기 유지보수 비용을 고려해 <strong>구글이 유지보수하는 Paging3</strong>로 전환하기로 결정했습니다.</li>
+<li>커스텀을 만들었던 배경이던 placeholder 스펙도 key 기반으로 재정의되며 커스텀 모듈은 함께 f/o할 수 있었습니다.</li>
+</ul>
+<h2>검토</h2>
+<ul>
+<li>전반 구조는 구글 가이드를 따름</li>
+</ul>
+<h2>UI 이벤트 처리 구조 고민</h2>
+<ul>
+<li>댓글/좋아요/답글수 등 개별 아이템 상태 변경을 어떻게 반영할까?
+<ol>
+<li>UI가 모델 변경 후 Adapter <code>notify</code></li>
+<li>ViewModel 별도 소스 + PagingData <code>combine</code></li>
+<li>데이터 계층에서만 변경 → Room In-Memory DB + <code>Flow&#x3C;PagingData></code> 재발행</li>
+</ol>
+</li>
+</ul>
+<p>결론은 3)</p>
+<ul>
+<li>단일 소스 유지, 역할 경계 명확, UI는 이벤트만 처리하고 데이터 직접 변경하지 않음</li>
+<li>Room(In-Memory) + <code>RemoteMediator</code>를 통해 원천/캐시 일관성을 유지하고, 재발행된 <code>Flow&#x3C;PagingData></code>로 UI를 갱신</li>
+</ul>
+<h2>정리된 구조</h2>
+<p><img src="/portfolio/projects/paging3-migration/structure.png" alt="정리된 구조"></p>
+<ul>
+<li>UI는 PagingData를 그대로 표시, 모든 업데이트는 UseCase에서 처리</li>
+<li>UseCase는 필요 시 DB 갱신 → 변경 사항은 <code>Flow&#x3C;PagingData></code>로 재발행되어 UI 반영</li>
+</ul>
+<h2>결과</h2>
+<ul>
+<li>데이터의 단일 소스 구조로 유지보수성 향상, UI 가변 모델 제거로 안정성 확보</li>
+<li>서버/클라이언트 모두 key 기반으로 정렬되어 placeholder/포커싱 시나리오 대응력이 개선되었습니다.</li>
+</ul></article>
+</div>
+</body>
+</html>

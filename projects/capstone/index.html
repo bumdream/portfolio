@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/28e8d7af1365f61e.css" data-precedence="next"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/028b338515cb152f.css" data-precedence="next"/>
+  <link rel="icon" href="/portfolio/favicon.ico" type="image/x-icon" sizes="16x16"/>
+</head>
+<body class="__variable_6d341e __variable_6d341e antialiased">
+<header class="sticky top-0 z-50 backdrop-blur bg-background/70 border-b border-foreground/10"><div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between"><a class="text-sm font-semibold tracking-tight" href="/portfolio/">한승범</a><nav class="flex items-center gap-3"><a href="https://www.linkedin.com/in/%EC%8A%B9%EB%B2%94-%ED%95%9C-54984b168" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4V24h-4V8zm7 0h3.8v2.2h.06c.53-1 1.83-2.2 3.76-2.2 4.02 0 4.76 2.64 4.76 6.07V24h-4v-7.1c0-1.69-.03-3.86-2.35-3.86-2.35 0-2.71 1.83-2.71 3.73V24h-4V8z"></path></svg>LinkedIn</a><a href="mailto:beoms6000@gmail.com" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 13.065 1.5 6h21L12 13.065zM12 15 1.5 8v10h21V8L12 15z"></path></svg>Email</a></nav></div></header>
+<div class="max-w-5xl mx-auto px-6 py-10 space-y-8">
+  <header class="space-y-3">
+    <h1 class="text-2xl sm:text-4xl font-bold tracking-tight">종합설계 프로젝트</h1>
+  </header>
+  <article class="markdown-body max-w-[68ch] mx-auto text-foreground/90"><p>대학교 마지막 졸업프로젝트 입니다.
+이 시기에 마음이 유독 잘 맞았던 동생 둘과 함께한 프로젝트입니다.</p>
+<p>심심할 때마다 했던 <a href="https://slither.io">slither.io</a> 란 지렁이게임이 있습니다.
+머리가 상대 지렁이 몸에 닿으면 죽는 게임인데, 이걸 졸업프로젝트로 만들어보자고 결심을 합니다.
+그냥 만들면 재미없으니 <strong>플레이어가 몸 동작으로 직접 조종할 수 있도록 하자는</strong> 재밌는(?) 생각을 해봅니다.</p>
+<p>동작인식 라이브러리는 이 당시 <a href="https://github.com/CMU-Perceptual-Computing-Lab/openpose">Openpose</a>가 가장 유명했으나, 아쉽게도 언어는 <code>c++</code>만 제공했습니다.
+먼저 라이브러리를 익히기 위해 아주 단순한 데모를 만들었습니다.</p>
+<h2>Openpose 샘플앱</h2>
+<p><img src="/portfolio/projects/capstone/openpose-sample.png" alt="Openpose 샘플"></p>
+<p>샘플앱의 구현이지만 성능상 이슈가 있어 AWS까지 적용했습니다.</p>
+<ul>
+<li>Openpose가 로컬에서 돌리기 너무 무거웠기 때문입니다.</li>
+<li>서버 통신은 실시간 통신이 필요하여 Socket 통신을 사용하였습니다.
+<ul>
+<li>TCP로 서버에서 얻은 좌표 value를 수신합니다.</li>
+<li>UDP로 카메라 스트림에서 캡처된 frame을 jpg로 압축해 AWS로 보냅니다.</li>
+</ul>
+</li>
+<li>Openpose로 얼굴 좌표를 받아 Rectangle을 그린 것이 위 최종화면입니다.</li>
+<li>이렇게 샘플앱을 익히고, 본격적으로 지렁이 게임을 만들기 시작합니다.</li>
+</ul>
+<h2>지렁이게임 V1 (Window기반 + OpenCV)</h2>
+<p><img src="/portfolio/projects/capstone/v1-screenshot.png" alt="V1"></p>
+<p>지렁이는 바닥부터 설계하였습니다.</p>
+<ul>
+<li>지렁이는 몸통(<code>BODY</code>)과 머리(<code>HEAD</code>)가 <code>LinkedList</code> 형태로 구성하였습니다.</li>
+<li><code>frame</code> 마다 <code>HEAD</code>를 <code>theta</code> 방향으로 이동시키며, <code>BODY</code>들은 자신의 앞 Node의 위치로 이동합니다.</li>
+<li>먹이를 먹을 때마다 몸이 길어져야 하는데, <code>BODY</code>가 하나씩 증가하도록 하였습니다.</li>
+</ul>
+<p>방향을 바꾸려면 <code>theta</code>를 바꿔줘야합니다.</p>
+<ul>
+<li>동작인식으로 움직이기 위해, 몸중앙과 손을 이은 직선의 각도를 <code>input</code>으로 활용해봅니다!</li>
+</ul>
+<p><img src="/portfolio/projects/capstone/arm-angle.gif" alt="팔 각도"></p>
+<ul>
+<li><code>HEAD</code>는 항상 앞으로 이동하기에, <code>theta</code>만 <code>input</code>으로 받으면 지렁이를 원하는 방향으로 이동할 수 있습니다.</li>
+<li>지렁이를 움직여 먹이를 먹으려면 팔을 쉼없이 움직여야 했지만, 뿌듯했습니다.</li>
+</ul>
+<h2>구조도</h2>
+<p><img src="/portfolio/projects/capstone/architecture.png" alt="구조도"></p>
+<p>샘플기준 빨간네모부분이 바뀌었습니다.</p>
+<ul>
+<li><code>frame</code>에서 얼굴이 아닌 몸 전체 <code>skeleton</code>을 추출하도록 로직 변경</li>
+<li><code>theta</code>를 추출하고, <code>HEAD</code>를 회전하도록 변경</li>
+</ul>
+<p><strong>구현을 하다보니 큰 문제점에 봉착합니다!!</strong></p>
+<ul>
+<li><code>OpenCV</code>로 <code>UI</code>개발을 어찌어찌 했는데, 이 이상 원하는 커스텀 <code>UI</code>를 구현하는게 쉽지 않았습니다.</li>
+<li>위 구현은 사실 굉장히 비효율적인데, 게임처럼 보이기 위해 매 카메라 <code>frame</code>마다 지렁이를 화면에서 새로 그리고 있습니다.
+<ul>
+<li>지렁이가 길어짐에 따라 급격한 성능저하가 생겼습니다.</li>
+</ul>
+</li>
+</ul>
+<h2>큰 결심, 대규모 구조 개선!</h2>
+<p>어떻게 할지 기술조사를 하였고, 아래와 같이 결정했습니다.</p>
+<ul>
+<li>커스텀 <code>UI</code>를 편하게 구현하기 위해 Android로 다시 개발한다.</li>
+<li>지렁이 성능 저하 이슈는 어떡할까?
+<ul>
+<li>물리 엔진을 직접 구현하지 않는다.</li>
+<li>잘 구현된 <code>Unity</code> 라이브러리를 활용해본다.</li>
+</ul>
+</li>
+<li><code>Unity</code>와 Android 통신이 가능한가?
+<ul>
+<li>자료는 별로 없지만 <code>jni</code>를 통해 기술적으로 가능한 것을 확인합니다.</li>
+</ul>
+</li>
+</ul>
+<h2>지렁이게임 V2 (Android + Unity)</h2>
+<p><img src="/portfolio/projects/capstone/v2-screenshot.png" alt="V2"></p>
+<ul>
+<li><code>C++</code> 로 구현한 클라이언트를 Android로 새로 개발하였습니다.</li>
+<li>그 외 비즈니스 로직도 Java로 다시 구현합니다.
+<ul>
+<li>소켓통신 (<code>TCP</code>, <code>UDP</code>)</li>
+<li>android 카메라 <code>frame</code> to <code>jpg</code></li>
+<li><code>Unity</code>에서 지렁이 핵심로직 연동</li>
+</ul>
+</li>
+<li><code>Unity</code>와 Android의 통신 부분은 여러 샘플을 통해 <code>jni</code>를 통해 구현할 수 있었습니다.</li>
+</ul>
+<p><img src="/portfolio/projects/capstone/jni-demo.gif" alt="데모"></p>
+<ul>
+<li>우측 <code>Unity</code> 뷰에서 지렁이 동작이 훨씬 자연스러워진 것을 볼 수 있습니다.</li>
+<li>Android에서 <code>Skeleton</code> 좌표를 몸에 덧대어 보여주고 있는데, 이런 <code>ui</code> 구현도 훨씬 편해졌습니다.</li>
+<li>지렁이 조작이 상당히 불편해보입니다.. 이 부분은 이후에 개선됩니다.</li>
+</ul>
+<h2>지렁이게임 V3 (Android + Unity + Multi-Play)</h2>
+<p><img src="/portfolio/projects/capstone/v3-multiplay.png" alt="V3 구조"></p>
+<ul>
+<li>V3에선 마침내 멀티유저 기능을 추가했습니다!</li>
+<li><code>Skeleton</code>으로 뽑은 데이터를 <code>json</code>형태로 전달하도록 구조가 개선되었습니다.
+<ul>
+<li>이 좌표가 누구의 것이냐를 결정하는게 고민이 되었는데, 초안이니 사용자의 옷 색상으로 구분하였습니다.</li>
+</ul>
+</li>
+<li>AWS로 받은 데이터는 Filter를 통해 실제 게임에 참여하는 플레이어좌표인 <code>KeyPoint</code>로 반환됩니다.</li>
+</ul>
+<h2>지렁이게임 V3 시연</h2>
+<p><img src="/portfolio/projects/capstone/v3-demo.gif" alt="V3 데모"></p>
+<ul>
+<li>slither.io에선 부스터가 게임의 승패를 좌우하는데, 여기선 마우스 클릭대신 <strong>만세를 할 때</strong> 부스터가 동작하도록 하였습니다.</li>
+<li>지렁이 조작은 목의 방향으로 최종 확정하였습니다. (영상의 굵은 흰색선)
+<ul>
+<li>이는 머리를 지렁이라 생각하며 움직이는게 제일 자연스럽고 편했기 때문입니다.</li>
+</ul>
+</li>
+</ul>
+<h2>+ 필터 정확도 강화</h2>
+<p><img src="/portfolio/projects/capstone/filters.gif" alt="필터"></p>
+<p>영상에 보여지는 사람이 많을 때 플레이어를 놓치는 이슈가 있어서 아래 두 필터를 개선하였습니다.</p>
+<ul>
+<li>거리필터 : 플레이어의 목 좌표의 평균을 활용하여 추적</li>
+<li>칼라필터 : 플레이어로 추출한 양어깨,팔,머리 칼라기반으로 추적</li>
+</ul>
+<h2>지렁이게임 Final Version</h2>
+<p><img src="/portfolio/projects/capstone/final.gif" alt="Final"></p>
+<p>마지막으로 게임적인 요소를 추가한 최종 화면입니다.</p>
+<ul>
+<li>스켈레톤은 본인의 지렁이를 알 수 있는 지렁이렌더링으로 대체</li>
+<li>남은시간, 부스터시 빛나기, 리스폰 장소 조명 등 디테일 추가</li>
+<li>실시간 순위 점수판, 랭킹보드판 (<code>Firebase</code>)</li>
+</ul>
+<p>핸드폰으로 플레이하기 화면이 작아서 실제론 아래처럼 큰 모니터에 핸드폰을 연결해서 했습니다.</p>
+<p><img src="/portfolio/projects/capstone/monitor.png" alt="모니터"></p>
+<h2>총평</h2>
+<ul>
+<li>교수님들과 다른 팀원분들이 보시곤 재밌게 참여해주신 프로젝트라 더 기억에 남았습니다.</li>
+<li>학교 다니면서 한 프로젝트 중, 가장 고되고 가장 재밌었던 프로젝트였습니다.</li>
+<li>여러 난관을 맞이했지만, 계속 고민하면 결국 해결할 수 있다는 것을 배웠습니다.</li>
+</ul></article>
+</div>
+</body>
+</html>

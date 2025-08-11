@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/28e8d7af1365f61e.css" data-precedence="next"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/028b338515cb152f.css" data-precedence="next"/>
+  <link rel="icon" href="/portfolio/favicon.ico" type="image/x-icon" sizes="16x16"/>
+</head>
+<body class="__variable_6d341e __variable_6d341e antialiased">
+<header class="sticky top-0 z-50 backdrop-blur bg-background/70 border-b border-foreground/10"><div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between"><a class="text-sm font-semibold tracking-tight" href="/portfolio/">한승범</a><nav class="flex items-center gap-3"><a href="https://www.linkedin.com/in/%EC%8A%B9%EB%B2%94-%ED%95%9C-54984b168" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4V24h-4V8zm7 0h3.8v2.2h.06c.53-1 1.83-2.2 3.76-2.2 4.02 0 4.76 2.64 4.76 6.07V24h-4v-7.1c0-1.69-.03-3.86-2.35-3.86-2.35 0-2.71 1.83-2.71 3.73V24h-4V8z"></path></svg>LinkedIn</a><a href="mailto:beoms6000@gmail.com" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 13.065 1.5 6h21L12 13.065zM12 15 1.5 8v10h21V8L12 15z"></path></svg>Email</a></nav></div></header>
+<div class="max-w-5xl mx-auto px-6 py-10 space-y-8">
+  <header class="space-y-3">
+    <h1 class="text-2xl sm:text-4xl font-bold tracking-tight">QA 앱배포 자동화 (+QA 메일 자동화)</h1>
+  </header>
+  <article class="markdown-body max-w-[68ch] mx-auto text-foreground/90"><p>이번 과제는 개인적으로 뜻 깊은 과제입니다.
+웹툰앱 배포 과정에서 다들 불편했던 부분이 개선되었기 때문입니다.</p>
+<p>아래 작업은 입사할 당시부터 지금까지 약 7년간 모든 팀원들이 습관적으로 해오던 것입니다.</p>
+<h2>QA기간</h2>
+<p>빌드를 위해 버전을 올려 PR을 올립니다.</p>
+<ul>
+<li>qa/version_XXXXX 브랜치 생성</li>
+<li>App.kt 버전 관련 코드 변경</li>
+<li>푸시 및 PR 등록</li>
+<li>멘션 'OO님 배포하게 버전 PR 리뷰좀 부탁드려요.'</li>
+<li>리뷰어가 approve해주면 해당 PR을 머지하고 빌드를 진행합니다.</li>
+<li>사내 빌드툴 (<code>Jenkins</code> 연동)을 통해 <code>dev</code>/<code>stage</code>/<code>real</code> 빌드를 돌립니다. (직렬 빌드, 30분 소요)</li>
+<li>빌드가 되면 파일명을 바꾸고, 다음날 예약메일에 링크를 첨부하여 보냅니다.</li>
+</ul>
+<h2>QA Sign off시</h2>
+<ul>
+<li>release 마지막 커밋에서 tag를 땁니다.</li>
+<li>main에 release를 머지하는 PR을 올립니다.</li>
+<li>mapping 파일을 사내 로깅 시스템에 첨부합니다.
+이 과정은 wiki 메뉴얼로 정리되어 있으며, 오랜기간 팀원 모두 능숙해졌습니다.
+그런데 문제는 너무 번거롭고 불편하다는 것이었습니다.</li>
+</ul>
+<p>저는 이 이슈를 개선하기로 생각합니다.
+해결된다면 팀원 전체가 개발 시간을 더 확보할 수 있기 때문이었습니다.
+저 포함 3명에서 프로젝트를 하게 되었으며, 저는 책임개발자로 전체적인 리딩을 맡게되었습니다.</p>
+<p>배포 프로세스는 최종적으로 아래처럼 개선되었습니다.</p>
+<h3>QA기간 TO-BE</h3>
+<ul>
+<li><code>QA workflow</code> 매일 1회 실행
+(현재는, <code>qa</code> branch에 변경이 있으면 자동으로 workflow가 실행되도록 개선되었습니다.)</li>
+</ul>
+<h3>QA Sign Off시 TO-BE</h3>
+<ul>
+<li><code>Market workflow</code> 1회 실행
+개발자는 각 기간에 workflow만 실행하면 되며, 모든 과정이 자동화 되었습니다.</li>
+</ul>
+<h2>구조도</h2>
+<p><em>(세부 로직은 업무 내용상 공유드릴 수 없는 점 양해 부탁드립니다.)</em></p>
+<p><img src="/portfolio/projects/qa-deployment/flow.png" alt="구조도"></p>
+<ul>
+<li><code>QA Workflow</code>: <code>dev</code>/<code>stage</code>/<code>real</code> 모두 빌드하며, 버전은 매번 <code>+1</code> 증분 → 실패 대비</li>
+<li>매 스텝마다 <code>gist</code>에 <code>status</code> 업데이트 → 중간 실패에도 재실행 가능</li>
+<li>배포 완료 시, 다음 날 10시에 빌드 파일을 포함한 예약 메일 전송</li>
+<li><code>Market workflow</code>: <code>tag</code> 생성, <code>merge PR</code> 등 마켓 배포 이후 후속 작업 진행</li>
+<li>마켓 버전은 QA 버전이 0 → 실패해도 다시 돌리기 쉬워 별도 <code>status</code> 관리는 생략</li>
+</ul>
+<h2>어려운 점은 없었는가?</h2>
+<p>개발할 것이 명확한 서비스 과제와 달리, 명확한 답이 없는 것이 어려운 포인트였습니다.</p>
+<ul>
+<li>'어디까지 자동화를 해야하지?'</li>
+<li>'어떤 형태로 만드는 것이 사용하는데 가장 편할까?'</li>
+<li>'workflow를 실행할 땐 어느 값을 사용자가 input으로 입력해야할까?' 같은 기획 요소부터 생각 해야했습니다.</li>
+<li>기술적으로 가능한가도 잘 그려지지 않았습니다.</li>
+<li>사내 메일을 <code>git-action</code>을 통해 보낼 수 있는가?</li>
+<li>CI를 <code>Jenkins</code>로 유지하면, <code>git-action</code>과 성공-데이터전달 핑퐁은 괜찮을까?</li>
+<li>아니면 이번 기회에 CI를 100% <code>git-action</code>으로 이관하는 것은 어떨까?</li>
+<li><code>git-action</code>을 CI 서버로 어떻게 사용해야할까?</li>
+<li><code>dev</code>/<code>stage</code>/<code>real</code> 병렬로 돌 수 있는 형태로 어떻게 구성할까?</li>
+<li>중간에 실패해도 돌아갈 수 있는 구조가 되려면 어떻게 해야할까?</li>
+<li>그 데이터는 어디에 저장해야하고, 어떤 정보들을 필수로 저장해야할까?</li>
+<li><code>git-action</code> 테스트는 어떻게 하면 좋을까?</li>
+<li>real 환경과 동일한 환경으론 어떻게 테스트 할 수 있을까?</li>
+<li>사내 apk 링크 주소는 어떻게 가져와야할까? 크롤링이 가능한가?</li>
+<li>크롤링시 사내 계정 정보는 어떻게 인증할까?</li>
+<li>매일 10시에 이메일을 보내려면 <code>gist</code>에는 어떤 데이터 형태로 저장되어야 할까?</li>
+<li>....</li>
+</ul>
+<p>정말 많은 난관이 있었지만, 하나씩 해결해 나가다보니 잘 마무리 되었습니다.
+지금까지도 이슈 없이 잘 사용하고 있습니다.</p>
+<h2>배포 하고 배운 점</h2>
+<p>리얼환경과 유사한 별도 레포에서 충분한 테스트를 거쳤지만,
+실제 QA기간이 되니 잔잔한 버그가 나오면서 중단하고 수동으로 배포해야 하는 경우도 몇번 있었습니다.</p>
+<ul>
+<li>버전을 개발자가 workflow가 아닌 직접 올린 경우, 스텝이 꼬암</li>
+<li>mapping.txt 경로가 잘못 잡혀 다음 job이 실패함</li>
+<li>tag가 이미 생성된 경우에, 다음 스텝으로 넘어가지 않음</li>
+<li>...</li>
+</ul>
+<p>이렇게 이슈가 발생하면 수동으로 배포해야 하는데, 중간 스텝부터 배포를 하는게 팀원들한텐 더 헷갈렸습니다.</p>
+<p>몇번의 자잘한 버그가 수정되면서 99% 안정화되었지만 이슈는 시간이 지나면 또 발생할 수 있다 생각합니다.
+중요한 건 휴가 등 항상 자리를 지킬 수 없으므로, 제3의 개발자도 충분히 쉽게 수정이 가능하도록 준비해야 합니다.</p>
+<ul>
+<li>담당자를 찾지 않아도 될 정도의 <code>git-action</code>의 충분한 로깅</li>
+<li>누가봐도 동작 구조를 알 수 있는 간결한 문서</li>
+<li>적어도 이 두가지는 필요하지 않을까 배우게 된 계기였습니다.
+현재 위 두가지는 기존 대비 개선되었으며,
+버전이 꼬여도 상태 복구 가능한 git-action도 추가되면서 좀 더 안정적으로 되었다 생각합니다.</li>
+</ul>
+<h2>개선 필요한 점</h2>
+<p>자동화 과제를 진행하면서 개선할 것들은 여전히 있습니다.</p>
+<ul>
+<li>git-action 빌드시간 느린 이슈: unit test 걸리는 시간을 더 줄일 순 없을지?</li>
+<li>git-action runner 분배 최적화: runner중 역할이 다른 runner들을 안쓸 때 활용할 수 없을지?</li>
+<li>배포내역을 QA에서 인지하기 어려운 이슈: commit, PR 템플릿을 파싱해 메일에 자동으로 보강할 수 있을지?</li>
+<li>특정 git-action이 오래 걸리고 있는데, 이런 시간을 통계낼 수는 없을지?
+...
+2025년에도 자동화 과제는 개발과제로 틈틈히 진행할 것 같습니다.</li>
+</ul></article>
+</div>
+</body>
+</html>

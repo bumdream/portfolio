@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/28e8d7af1365f61e.css" data-precedence="next"/>
+  <link rel="stylesheet" href="/portfolio/_next/static/css/028b338515cb152f.css" data-precedence="next"/>
+  <link rel="icon" href="/portfolio/favicon.ico" type="image/x-icon" sizes="16x16"/>
+</head>
+<body class="__variable_6d341e __variable_6d341e antialiased">
+<header class="sticky top-0 z-50 backdrop-blur bg-background/70 border-b border-foreground/10"><div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between"><a class="text-sm font-semibold tracking-tight" href="/portfolio/">한승범</a><nav class="flex items-center gap-3"><a href="https://www.linkedin.com/in/%EC%8A%B9%EB%B2%94-%ED%95%9C-54984b168" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4V24h-4V8zm7 0h3.8v2.2h.06c.53-1 1.83-2.2 3.76-2.2 4.02 0 4.76 2.64 4.76 6.07V24h-4v-7.1c0-1.69-.03-3.86-2.35-3.86-2.35 0-2.71 1.83-2.71 3.73V24h-4V8z"></path></svg>LinkedIn</a><a href="mailto:beoms6000@gmail.com" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 hover:bg-foreground/5 text-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 13.065 1.5 6h21L12 13.065zM12 15 1.5 8v10h21V8L12 15z"></path></svg>Email</a></nav></div></header>
+<div class="max-w-5xl mx-auto px-6 py-10 space-y-8">
+  <header class="space-y-3">
+    <h1 class="text-2xl sm:text-4xl font-bold tracking-tight">소프트웨어 공학설계</h1>
+  </header>
+  <article class="markdown-body max-w-[68ch] mx-auto text-foreground/90"><p>컴공과로 전과하고, 처음 협업을 했던 <strong>프로젝트</strong>입니다.
+교수님께선 <strong>자동출석체크시스템</strong>을 자유로운 형태로 구현하라고 하셨습니다.</p>
+<p>이때는 코드퀄리티나 구조에 대한 고민은 거의 하지 않고,
+프로그램이 돌아가게 만드는데 온 신경을 썼던 시기인 것 같습니다.</p>
+<p>재밌었던 것은 <strong>어떤 방식으로 출석 체크할 것인가</strong>에 대해 답을 찾아가는 과정이었습니다.
+저희는 단지 과제 제출을 위한 앱을 만들기보다, <strong>정말로 사용할 수 있는 시스템</strong>을 만들고 싶었습니다.</p>
+<p>출석 정보는 최대한 실제와 비슷하게 클라우드에 올리고, 서버는 Firebase를 활용했습니다.
+학생ID를 읽는 리더기앱을 만들어서 교실문에 두고,
+교실에 들어오는 학생들은 QR리더기앱에 학생용 앱을 켜서 입장하는 형태로 구상했습니다.</p>
+<p>그 다음 중요한 것은, <strong>출석체크 한 학생이 정말 교실에 있는가</strong>를 검증할 수 있어야 했습니다.
+QR만 받아서 대출(=대리출석)을 하더라도 잡아낼 수 있는 시스템이여야 한다 생각했습니다.
+고민 결과, 검증은 교실마다 있는 wifi mac address를 활용하여 쉽게 해결할 수 있었습니다.</p>
+<p><img src="/portfolio/projects/attendance/qr-step1.gif" alt="qr-step1">
+<img src="/portfolio/projects/attendance/qr-step2.gif" alt="qr-step2">
+<img src="/portfolio/projects/attendance/flow.png" alt="flow"></p>
+<p><strong>메인 시나리오는 이렇습니다</strong></p>
+<ul>
+<li>교수님이 도착 후, 교수님용 앱으로 로그인하여 QR코드를 읽혀 수업정보를 초기화시킵니다. (첫번째 영상)</li>
+<li>초기화와 동시에 QR리더기는, 가장 신호가 쎈 mac address 를 firebase에 업데이트 합니다.</li>
+<li>이후 학생이 들어오면서 QR리더기에 학생ID를 읽히면 출석 체크 프로세스가 진행됩니다. (두번째 영상)
+<ul>
+<li>QR 리더기는 인식한 학생 ID의 기기에 wifi 정보를 요청합니다.</li>
+<li>학생기기에서는 wifi 정보를 Firebase에 업데이트 하고, 데이터가 일치하면 출석으로 인정합니다.</li>
+</ul>
+</li>
+</ul>
+<p><strong>현실적인 문제도 해결할 수 없을까?</strong></p>
+<p>출석체크하고 수업시간 도중에 도망가는 학생들도 잡아야 진짜 출석체크 프로그램이라 생각했습니다.
+그래서 교수님 앱에 <strong>출튀자 잡기 기능</strong>을 추가했습니다😄</p>
+<p><img src="/portfolio/projects/attendance/runaway.png" alt="runaway"></p>
+<p><strong>메인 플로우에 대한 구조도입니다.</strong></p>
+<ul>
+<li>교수님이 출튀잡기 기능을 누릅니다.</li>
+<li>QR 리더기에서 <strong>출석체크한 학생들 대상으로 Wi‑Fi 정보를 요청</strong>합니다.</li>
+<li>학생 앱은 Wi‑Fi 정보를 갱신합니다.</li>
+<li>정보가 달라진 학생이 있다면 교수님께 명단을 공유해 출석을 부르게 합니다. (잡았다 요놈!!!)</li>
+</ul>
+<p>발표할 때 교수님이 특히 즐거워하신 기억이 납니다.</p></article>
+</div>
+</body>
+</html>
